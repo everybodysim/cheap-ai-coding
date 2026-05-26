@@ -79,9 +79,9 @@
         
     </main>
 
-    <script>
-        // PASTE YOUR NEW ENCRYPTED GOOGLE STRING HERE
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1+ppr5Bt0hn/XuJzZHTi1NRBk+uYNI8rJL733UQuti0Ai13pW1IRINrcQf3vbdpq9Aw2UngweK5rA==";
+   <script>
+        // Your working encrypted Google key string
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1+WLkQgqBPxnNWwpQ5PM98dtJgCtQ+dYUz9POQDV9wxZuO6Wgy0RJAJjogDrnr6l5qFuH5TTPQ+onQffg9fP5bxSq5T4EzFEVnruzqWqH//rlivwWLuCdHggKyouGgpyE4mkCizhOMB/JAKXi96qTPYZ12J3YQJT43zvPfiykKjlC6NCBIbg+aAAXn+3Q/Mow3HHRfIBuwUYb7QCvGSwQcwJOzJxw6TP858VB8mSZptT70uAtVfClBU";
 
         let decryptedKey = "";
 
@@ -106,7 +106,6 @@
                 const bytes = CryptoJS.AES.decrypt(ENCRYPTED_API_KEY, enteredPass);
                 const resultText = bytes.toString(CryptoJS.enc.Utf8);
                 
-                // Google keys usually start with AIzaSy
                 if (resultText.startsWith("AIzaSy") && enteredPass === "5435") {
                     decryptedKey = resultText;
                     lockScreen.classList.add('opacity-0', 'pointer-events-none');
@@ -136,8 +135,8 @@
             try {
                 const systemInstructions = "You are an elite expert frontend developer. Create a single-file interactive application (HTML, CSS, and JS combined seamlessly) matching the user's prompt. You may use modern CDNs like Tailwind CSS (https://cdn.tailwindcss.com) or FontAwesome icons freely to ensure high-end aesthetics. Return ONLY raw executable code starting with <!DOCTYPE html> and closing with </html>. Absolutely NO markdown block formatting wrapping code (do not use ```html), no backticks, and no conversation prose.";
 
-                // Calling Google's Free Gemini API End-Point
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${decryptedKey}`;
+                // FIXED STABLE v1 PRODUCTION ENDPOINT
+                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${decryptedKey}`;
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -159,7 +158,6 @@
                 if (!response.ok) throw new Error(await response.text());
                 const data = await response.json();
                 
-                // Extract text from Gemini's custom response structure
                 let rawCode = data.candidates[0].content.parts[0].text;
                 let cleanCode = filterMarkdownWrappers(rawCode);
 
