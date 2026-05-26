@@ -135,8 +135,8 @@
             try {
                 const systemInstructions = "You are an elite expert frontend developer. Create a single-file interactive application (HTML, CSS, and JS combined seamlessly) matching the user's prompt. You may use modern CDNs like Tailwind CSS (https://cdn.tailwindcss.com) or FontAwesome icons freely to ensure high-end aesthetics. Return ONLY raw executable code starting with <!DOCTYPE html> and closing with </html>. Absolutely NO markdown block formatting wrapping code (do not use ```html), no backticks, and no conversation prose.";
 
-                // FIXED STABLE v1 PRODUCTION ENDPOINT
-                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${decryptedKey}`;
+                // FIXED STABLE MODEL IDENTIFIER MATCHING v1 SPECIFICATIONS
+                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${decryptedKey}`;
 
                 const response = await fetch(url, {
                     method: 'POST',
