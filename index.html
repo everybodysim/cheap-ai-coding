@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ ChatGPT Live Workspace</title>
+    <title>⚡ ChatGPT Live Workspace (Pages Safe)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -18,14 +19,14 @@
         <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
             <div class="text-4xl mb-4">🔒</div>
             <h2 class="text-xl font-bold mb-2 text-slate-200">Workspace Locked</h2>
-            <p class="text-xs text-slate-400 mb-6">Enter the authorization passcode to access the live engine.</p>
+            <p class="text-xs text-slate-400 mb-6">Enter your passcode to decrypt the workspace engine.</p>
             
             <div class="flex flex-col gap-3">
                 <input id="passcodeInput" type="password" placeholder="••••" class="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-center font-mono text-xl tracking-widest focus:outline-none focus:border-amber-500 text-amber-400 placeholder-slate-700">
                 <button id="unlockBtn" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold py-2.5 rounded-lg transition transform active:scale-95 text-sm">
-                    Unlock Workspace
+                    Unlock & Decrypt
                 </button>
-                <p id="lockError" class="text-rose-500 text-xs font-medium min-h-[1rem] mt-1 invisible">Incorrect passcode. Access denied.</p>
+                <p id="lockError" class="text-rose-500 text-xs font-medium min-h-[1rem] mt-1 invisible">Invalid passcode. Decryption failed.</p>
             </div>
         </div>
     </div>
@@ -46,7 +47,7 @@
 
     <section class="p-4 bg-slate-900/60 border-b border-slate-800 shrink-0">
         <div class="max-w-7xl mx-auto flex gap-3 items-end bg-slate-950 border border-slate-700 rounded-lg p-2 focus-within:border-amber-500 transition shadow-inner">
-            <textarea id="promptInput" rows="2" class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none text-sm resize-none px-2 py-1" placeholder="What are we building today? (e.g., 'A beautiful glassmorphism weather dashboard dashboard with animations')"></textarea>
+            <textarea id="promptInput" rows="2" class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none text-sm resize-none px-2 py-1" placeholder="What are we building today?"></textarea>
             <button id="generateBtn" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold text-sm px-5 py-2.5 rounded-md shadow-md transition transform active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
                 <span>Code It</span> 🚀
             </button>
@@ -79,17 +80,18 @@
     </main>
 
     <script>
-        // Your hardcoded ChatGPT credentials
-        const OPENAI_API_KEY = "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";
+        // PASTING ZONE: Paste your long encrypted text from Step 1 between the quotes below!
+        const ENCRYPTED_API_KEY = "PASTE_YOUR_ENCRYPTED_STRING_HERE";
         const MODEL_NAME = "gpt-4o-mini"; 
 
-        // Lock Screen Elements
+        // Core variables
+        let decryptedKey = "";
+
+        // UI Target Hooks
         const lockScreen = document.getElementById('lockScreen');
         const passcodeInput = document.getElementById('passcodeInput');
         const unlockBtn = document.getElementById('unlockBtn');
         const lockError = document.getElementById('lockError');
-
-        // Workspace Elements
         const promptInput = document.getElementById('promptInput');
         const generateBtn = document.getElementById('generateBtn');
         const codeEditor = document.getElementById('codeEditor');
@@ -98,32 +100,38 @@
         const statusIndicator = document.getElementById('statusIndicator');
         const copyBtn = document.getElementById('copyBtn');
 
-        // Passcode Validation Engine
-        function checkPasscode() {
-            if (passcodeInput.value === "5435") {
-                lockScreen.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => lockScreen.remove(), 300); // Cleanly drop DOM elements after animation
-            } else {
+        // Decryption & Validation Engine
+        function handleUnlock() {
+            const enteredPass = passcodeInput.value.trim();
+            
+            try {
+                // Attempt to decrypt the API Key string using crypto-js matching your password
+                const bytes = CryptoJS.AES.decrypt(ENCRYPTED_API_KEY, enteredPass);
+                const resultText = bytes.toString(CryptoJS.enc.Utf8);
+                
+                // If it decrypts back into a valid-looking OpenAI string, pass through
+                if (resultText.startsWith("sk-") && enteredPass === "5435") {
+                    decryptedKey = resultText;
+                    lockScreen.classList.add('opacity-0', 'pointer-events-none');
+                    setTimeout(() => lockScreen.remove(), 300);
+                } else {
+                    throw new Error();
+                }
+            } catch (e) {
                 lockError.classList.remove('invisible');
                 passcodeInput.value = "";
                 passcodeInput.focus();
             }
         }
 
-        unlockBtn.addEventListener('click', checkPasscode);
-        passcodeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkPasscode();
-        });
+        unlockBtn.addEventListener('click', handleUnlock);
+        passcodeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleUnlock(); });
+        passcodeInput.addEventListener('input', () => lockError.classList.add('invisible'));
 
-        // Clear error text dynamically on re-typing
-        passcodeInput.addEventListener('input', () => {
-            lockError.classList.add('invisible');
-        });
-
-        // OpenAI Prompt Pipeline
+        // OpenAI Pipeline Execution
         generateBtn.addEventListener('click', async () => {
             const prompt = promptInput.value.trim();
-            if (!prompt) return alert('Please enter a description of what you want to build.');
+            if (!prompt) return alert('Please describe what you want to build.');
 
             generateBtn.disabled = true;
             setAppStatus("thinking", "Brainstorming...");
@@ -135,7 +143,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${OPENAI_API_KEY}`
+                        'Authorization': `Bearer ${decryptedKey}`
                     },
                     body: JSON.stringify({
                         model: MODEL_NAME,
