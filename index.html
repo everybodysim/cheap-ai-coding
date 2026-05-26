@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ ChatGPT Live Workspace (Free Gemini Edition)</title>
+    <title>⚡ Live Workspace (Free Mistral Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
@@ -35,13 +35,13 @@
         <div class="flex items-center gap-2">
             <span class="text-xl">⚡</span>
             <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-                ChatGPT LiveCode Canvas (Free)
+                LiveCode Canvas (Mistral Free)
             </h1>
         </div>
         
         <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded px-3 py-1 text-xs text-slate-400">
             <span id="statusIndicator" class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span id="statusText" class="font-mono">Ready (Gemini Free Tier)</span>
+            <span id="statusText" class="font-mono">Ready (Mistral Free)</span>
         </div>
     </header>
 
@@ -55,7 +55,6 @@
     </section>
 
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
-        
         <section class="w-full md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-slate-800 bg-slate-900/20 h-1/2 md:h-full">
             <div class="bg-slate-900/80 px-4 py-2 flex items-center justify-between border-b border-slate-800 shrink-0">
                 <span class="text-xs font-mono tracking-wider text-slate-400 uppercase">Source Code</span>
@@ -64,7 +63,7 @@
                 </button>
             </div>
             <div class="flex-1 relative overflow-hidden">
-                <textarea id="codeEditor" spellcheck="false" class="w-full h-full bg-slate-950/40 text-amber-400 font-mono text-sm p-4 focus:outline-none resize-none leading-relaxed" placeholder=""></textarea>
+                <textarea id="codeEditor" spellcheck="false" class="w-full h-full bg-slate-950/40 text-amber-400 font-mono text-sm p-4 focus:outline-none resize-none leading-relaxed"></textarea>
             </div>
         </section>
 
@@ -76,16 +75,14 @@
                 <iframe id="previewFrame" class="w-full h-full border-none bg-white" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
             </div>
         </section>
-        
     </main>
 
-   <script>
-        // Your working encrypted Google key string
-        const ENCRYPTED_API_KEY = "U2FsdGVkX1/dlboYSIEfWMeiuv09WtvSuVsvMfAbg7yLusSbPMyW1g+3h2YjL1bY7oUNsE912OzBBl95tbsJqg==";
+    <script>
+        // PASTE YOUR NEW ENCRYPTED MISTRAL TEXT STRING HERE
+        const ENCRYPTED_API_KEY = "U2FsdGVkX18tfv4GQFiWiJHxrR9UCOOlL10lLFv/lfj32xbpo/I2b3KSij0NVkouJQsDRX0ABpV2Iy1amhenzA==";
 
         let decryptedKey = "";
 
-        // UI Hook bindings
         const lockScreen = document.getElementById('lockScreen');
         const passcodeInput = document.getElementById('passcodeInput');
         const unlockBtn = document.getElementById('unlockBtn');
@@ -98,15 +95,13 @@
         const statusIndicator = document.getElementById('statusIndicator');
         const copyBtn = document.getElementById('copyBtn');
 
-        // Passcode evaluation & decryption engine
         function handleUnlock() {
             const enteredPass = passcodeInput.value.trim();
-            
             try {
                 const bytes = CryptoJS.AES.decrypt(ENCRYPTED_API_KEY, enteredPass);
                 const resultText = bytes.toString(CryptoJS.enc.Utf8);
                 
-                if (resultText.startsWith("AIzaSy") && enteredPass === "5435") {
+                if (resultText && enteredPass === "5435") {
                     decryptedKey = resultText;
                     lockScreen.classList.add('opacity-0', 'pointer-events-none');
                     setTimeout(() => lockScreen.remove(), 300);
@@ -122,42 +117,38 @@
 
         unlockBtn.addEventListener('click', handleUnlock);
         passcodeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleUnlock(); });
-        passcodeInput.addEventListener('input', () => lockError.classList.add('invisible'));
 
-        // Core Free Gemini API Connection Pipeline
         generateBtn.addEventListener('click', async () => {
             const prompt = promptInput.value.trim();
             if (!prompt) return alert('Please describe what you want to build.');
 
             generateBtn.disabled = true;
-            setAppStatus("thinking", "Brainstorming...");
+            setAppStatus("thinking", "Thinking...");
 
             try {
-                const systemInstructions = "You are an elite expert frontend developer. Create a single-file interactive application (HTML, CSS, and JS combined seamlessly) matching the user's prompt. You may use modern CDNs like Tailwind CSS (https://cdn.tailwindcss.com) or FontAwesome icons freely to ensure high-end aesthetics. Return ONLY raw executable code starting with <!DOCTYPE html> and closing with </html>. Absolutely NO markdown block formatting wrapping code (do not use ```html), no backticks, and no conversation prose.";
+                const systemInstructions = "You are an elite expert frontend developer. Create a single-file interactive application (HTML, CSS, and JS combined seamlessly) matching the user's prompt. You may use modern CDNs like Tailwind CSS (https://cdn.tailwindcss.com) freely. Return ONLY raw executable code starting with <!DOCTYPE html> and closing with </html>. Absolutely NO markdown block formatting wrapping code (do not use ```html), no backticks, and no conversation prose.";
 
-                // Updated endpoint routing string
-const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${decryptedKey}`;
-                const response = await fetch(url, {
+                // Standard, reliable Mistral API endpoint structure
+                const response = await fetch("[https://api.mistral.ai/v1/chat/completions](https://api.mistral.ai/v1/chat/completions)", {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${decryptedKey}`
                     },
                     body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: `${systemInstructions}\n\nUser Request: ${prompt}`
-                            }]
-                        }],
-                        generationConfig: {
-                            temperature: 0.2
-                        }
+                        model: "mistral-small-latest",
+                        messages: [
+                            { role: "system", content: systemInstructions },
+                            { role: "user", content: prompt }
+                        ],
+                        temperature: 0.2
                     })
                 });
                 
                 if (!response.ok) throw new Error(await response.text());
                 const data = await response.json();
                 
-                let rawCode = data.candidates[0].content.parts[0].text;
+                let rawCode = data.choices[0].message.content;
                 let cleanCode = filterMarkdownWrappers(rawCode);
 
                 runLiveStreamEngine(cleanCode);
@@ -165,7 +156,7 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
             } catch (err) {
                 console.error(err);
                 setAppStatus("error", "API Error");
-                alert("Failed to communicate with Gemini:\n" + err.message);
+                alert("Failed to communicate with Mistral:\n" + err.message);
                 generateBtn.disabled = false;
             }
         });
@@ -181,9 +172,8 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
         }
 
         function runLiveStreamEngine(fullText) {
-            setAppStatus("coding", "Writing code...");
+            setAppStatus("coding", "Writing...");
             codeEditor.value = "";
-            
             let currentOffset = 0;
             const charactersPerTick = Math.max(3, Math.ceil(fullText.length / 120)); 
             
@@ -195,11 +185,9 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
                     setAppStatus("ready", "Ready");
                     generateBtn.disabled = false;
                 }
-                
                 const slice = fullText.slice(0, currentOffset);
                 codeEditor.value = slice;
                 codeEditor.scrollTop = codeEditor.scrollHeight;
-                
                 syncPreviewFrame(slice);
             }, 8);
         }
@@ -211,30 +199,20 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
             doc.close();
         }
 
-        codeEditor.addEventListener('input', () => {
-            syncPreviewFrame(codeEditor.value);
-        });
-
+        codeEditor.addEventListener('input', () => syncPreviewFrame(codeEditor.value));
         copyBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(codeEditor.value);
-            const initialText = copyBtn.innerText;
             copyBtn.innerText = "Copied! ✓";
-            setTimeout(() => copyBtn.innerText = initialText, 1500);
+            setTimeout(() => copyBtn.innerText = "Copy Code", 1500);
         });
 
         function setAppStatus(type, label) {
             statusText.innerText = label;
             statusIndicator.className = "h-2 w-2 rounded-full";
-            
-            if (type === "ready") {
-                statusIndicator.classList.add("bg-emerald-500");
-            } else if (type === "thinking") {
-                statusIndicator.classList.add("bg-amber-500", "animate-pulse");
-            } else if (type === "coding") {
-                statusIndicator.classList.add("bg-orange-500", "animate-pulse");
-            } else if (type === "error") {
-                statusIndicator.classList.add("bg-rose-500");
-            }
+            if (type === "ready") statusIndicator.classList.add("bg-emerald-500");
+            else if (type === "thinking") statusIndicator.classList.add("bg-amber-500", "animate-pulse");
+            else if (type === "coding") statusIndicator.classList.add("bg-orange-500", "animate-pulse");
+            else if (type === "error") statusIndicator.classList.add("bg-rose-500");
         }
     </script>
 </body>
