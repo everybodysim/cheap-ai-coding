@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Live Workspace (Free Mistral Edition)</title>
+    <title>⚡ Live Workspace (Stable Free Engine)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
@@ -19,7 +19,7 @@
         <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
             <div class="text-4xl mb-4">🔓</div>
             <h2 class="text-xl font-bold mb-2 text-slate-200">Workspace Locked</h2>
-            <p class="text-xs text-slate-400 mb-6">Enter your passcode to decrypt the free workspace engine.</p>
+            <p class="text-xs text-slate-400 mb-6">Enter your passcode to decrypt the workspace engine.</p>
             
             <div class="flex flex-col gap-3">
                 <input id="passcodeInput" type="password" placeholder="••••" class="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-center font-mono text-xl tracking-widest focus:outline-none focus:border-amber-500 text-amber-400 placeholder-slate-700">
@@ -35,19 +35,19 @@
         <div class="flex items-center gap-2">
             <span class="text-xl">⚡</span>
             <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-                LiveCode Canvas (Mistral Free)
+                LiveCode Canvas
             </h1>
         </div>
         
         <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded px-3 py-1 text-xs text-slate-400">
             <span id="statusIndicator" class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span id="statusText" class="font-mono">Ready (Mistral Free)</span>
+            <span id="statusText" class="font-mono">Ready</span>
         </div>
     </header>
 
     <section class="p-4 bg-slate-900/60 border-b border-slate-800 shrink-0">
         <div class="max-w-7xl mx-auto flex gap-3 items-end bg-slate-950 border border-slate-700 rounded-lg p-2 focus-within:border-amber-500 transition shadow-inner">
-            <textarea id="promptInput" rows="2" class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none text-sm resize-none px-2 py-1" placeholder="What are we building today for free?"></textarea>
+            <textarea id="promptInput" rows="2" class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none text-sm resize-none px-2 py-1" placeholder="What are we building today?"></textarea>
             <button id="generateBtn" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold text-sm px-5 py-2.5 rounded-md shadow-md transition transform active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
                 <span>Code It</span> 🚀
             </button>
@@ -78,7 +78,8 @@
     </main>
 
     <script>
-        const ENCRYPTED_API_KEY = "U2FsdGVkX18tfv4GQFiWiJHxrR9UCOOlL10lLFv/lfj32xbpo/I2b3KSij0NVkouJQsDRX0ABpV2Iy1amhenzA==";
+        // Your working encrypted Gemini key
+        const ENCRYPTED_API_KEY = "U2FsdGVkX1/dlboYSIEfWMeiuv09WtvSuVsvMfAbg7yLusSbPMyW1g+3h2YjL1bY7oUNsE912OzBBl95tbsJqg==";
 
         let decryptedKey = "";
 
@@ -100,7 +101,7 @@
                 const bytes = CryptoJS.AES.decrypt(ENCRYPTED_API_KEY, enteredPass);
                 const resultText = bytes.toString(CryptoJS.enc.Utf8);
                 
-                if (resultText && enteredPass === "5435") {
+                if (resultText.startsWith("AIzaSy") && enteredPass === "5435") {
                     decryptedKey = resultText;
                     lockScreen.classList.add('opacity-0', 'pointer-events-none');
                     setTimeout(() => lockScreen.remove(), 300);
@@ -125,37 +126,32 @@
             setAppStatus("thinking", "Thinking...");
 
             try {
-                const systemInstructions = "You are an elite expert frontend developer. Create a single-file interactive application (HTML, CSS, and JS combined seamlessly) matching the user's prompt. Return ONLY raw executable code starting with <!DOCTYPE html> and closing with </html>. Absolutely NO markdown block formatting wrapping code (do not use ```html), no backticks, and no conversation prose.";
+                const systemInstructions = "You are an elite expert frontend developer. Create a single-file interactive application (HTML, CSS, and JS combined seamlessly) matching the user's prompt. You may use modern CDNs like Tailwind CSS (https://cdn.tailwindcss.com) freely. Return ONLY raw executable code starting with <!DOCTYPE html> and closing with </html>. Absolutely NO markdown block formatting wrapping code (do not use ```html), no backticks, and no conversation prose.";
 
-                // Reconstructed structural post request configurations
-                const targetEndpoint = "[https://api.mistral.ai/v1/chat/completions](https://api.mistral.ai/v1/chat/completions)";
-                
-                const requestPayload = {
-                    model: "mistral-small-latest",
-                    messages: [
-                        { role: "system", content: systemInstructions },
-                        { role: "user", content: prompt }
-                    ],
-                    temperature: 0.2
-                };
+                // This path uses standard query-string key auth, bypassing direct header CORS blocks
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${decryptedKey.trim()}`;
 
-                const response = await fetch(targetEndpoint, {
-                    method: "POST",
+                const response = await fetch(url, {
+                    method: 'POST',
                     headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + decryptedKey.trim()
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(requestPayload)
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `${systemInstructions}\n\nUser Request: ${prompt}`
+                            }]
+                        }]
+                    })
                 });
                 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText);
+                    const errResponse = await response.text();
+                    throw new Error(errResponse);
                 }
                 
                 const data = await response.json();
-                let rawCode = data.choices[0].message.content;
+                let rawCode = data.candidates[0].content.parts[0].text;
                 let cleanCode = filterMarkdownWrappers(rawCode);
 
                 runLiveStreamEngine(cleanCode);
@@ -163,7 +159,7 @@
             } catch (err) {
                 console.error(err);
                 setAppStatus("error", "API Error");
-                alert("Failed to communicate with Mistral:\n" + err.message);
+                alert("Connection failed:\n" + err.message);
                 generateBtn.disabled = false;
             }
         });
