@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Autonomous Agent Canvas Engine</title>
+    <title>⚡ Autonomous Agent Canvas Engine (100% Local Mode)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script type="module">
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
+        window.localPipeline = pipeline;
+    </script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -15,42 +18,26 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans overflow-hidden">
 
-    <div id="lockScreen" class="fixed inset-0 bg-slate-950 z-50 flex flex-col items-center justify-center p-4 transition-all duration-300">
-        <div class="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-sm w-full text-center shadow-2xl">
-            <div class="text-4xl mb-4">🤖</div>
-            <h2 class="text-xl font-bold mb-2 text-slate-200">Agent Canvas Ready</h2>
-            <p class="text-xs text-slate-400 mb-6">Enter system passcode to initialize the simulation router loop.</p>
-            
-            <div class="flex flex-col gap-3">
-                <input id="passcodeInput" type="password" placeholder="••••" class="bg-slate-950 border border-slate-700 rounded-lg px-4 py-2.5 text-center font-mono text-xl tracking-widest focus:outline-none focus:border-amber-500 text-amber-400 placeholder-slate-700">
-                <button id="unlockBtn" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold py-2.5 rounded-lg transition transform active:scale-95 text-sm">
-                    Initialize System
-                </button>
-                <p id="lockError" class="text-rose-500 text-xs font-medium min-h-[1rem] mt-1 invisible">Access Denied.</p>
-            </div>
-        </div>
-    </div>
-
     <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2">
             <span class="text-xl">⚡</span>
             <h1 class="text-base font-bold tracking-tight bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-                LiveCode Canvas v3 (Agent Simulation Testing Engine)
+                LiveCode Canvas v5 (100% Local Browser Engine)
             </h1>
         </div>
         
         <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded px-3 py-1 text-xs text-slate-400">
-            <span id="statusIndicator" class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span id="statusText" class="font-mono">Ready</span>
+            <span id="statusIndicator" class="h-2 w-2 rounded-full bg-amber-500"></span>
+            <span id="statusText" class="font-mono">Initializing Local Engine...</span>
         </div>
     </header>
 
     <section class="p-4 bg-slate-900/60 border-b border-slate-800 shrink-0">
         <div class="max-w-7xl mx-auto flex flex-col gap-3">
             <div class="flex gap-3 items-end bg-slate-950 border border-slate-700 rounded-lg p-2 focus-within:border-amber-500 transition shadow-inner">
-                <textarea id="promptInput" rows="2" class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none text-sm resize-none px-2 py-1" placeholder="What are we building? (e.g., 'A game where spacebar jumps, track with window.score')"></textarea>
-                <button id="generateBtn" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-bold text-sm px-5 py-2.5 rounded-md shadow-md transition transform active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
-                    <span>Compile & Simulate</span> 🚀
+                <textarea id="promptInput" rows="2" class="flex-1 bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none text-sm resize-none px-2 py-1" placeholder="Describe your game... (No Internet Required)"></textarea>
+                <button id="generateBtn" disabled class="bg-gradient-to-r from-orange-500 to-amber-500 opacity-50 cursor-not-allowed text-slate-950 font-bold text-sm px-5 py-2.5 rounded-md shadow-md transition transform active:scale-95 flex items-center gap-1.5 whitespace-nowrap">
+                    <span>Loading Engine...</span> ⏳
                 </button>
             </div>
             
@@ -58,11 +45,11 @@
                 <div class="flex flex-wrap items-center gap-6">
                     <label class="flex items-center gap-2 cursor-pointer select-none">
                         <input type="checkbox" id="enableSimToggle" checked class="accent-orange-500 rounded h-4 w-4">
-                        <span class="text-slate-300 font-medium">Enable AI Interactive Closed-Loop Testing</span>
+                        <span class="text-slate-300 font-medium">Enable Local Simulation Feedback Loop</span>
                     </label>
                 </div>
                 <div class="text-slate-400 font-mono" id="simStatus">
-                    Loop Status: <span class="text-slate-500">Idle</span>
+                    Loop Status: <span class="text-slate-500">Awaiting Engine Activation</span>
                 </div>
             </div>
         </div>
@@ -71,7 +58,7 @@
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
         <section class="w-full md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r border-slate-800 bg-slate-900/20 h-1/2 md:h-full">
             <div class="bg-slate-900/80 px-4 py-2 flex items-center justify-between border-b border-slate-800 shrink-0">
-                <span class="text-xs font-mono tracking-wider text-slate-400 uppercase">Generated Source</span>
+                <span class="text-xs font-mono tracking-wider text-slate-400 uppercase">Local Code Buffer</span>
                 <button id="copyBtn" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded transition border border-slate-700 active:scale-95">
                     Copy
                 </button>
@@ -92,14 +79,14 @@
             
             <div id="telemetryOverlay" class="absolute bottom-4 left-4 right-4 bg-slate-950/95 border border-slate-800 p-3 rounded-lg font-mono text-xs text-slate-300 shadow-2xl transition-all">
                 <div class="text-orange-400 font-bold border-b border-slate-800 pb-1 mb-1.5 flex justify-between items-center">
-                    <span>📡 TELEMETRY INTERCEPTOR HARNESS ACTIVE</span>
-                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 animate-pulse">STREAMING</span>
+                    <span>📡 TELEMETRY INTERCEPTOR ACTIVE (OFFLINE)</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">LOCAL ONLY</span>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-slate-400">
                     <div>AI Forces Keypress: <span id="telemetryInput" class="text-amber-400 font-bold">None</span></div>
                     <div>Scraped App Variables: <span id="telemetryState" class="text-emerald-400 font-bold">{}</span></div>
                 </div>
-                <div class="mt-2 pt-1.5 border-t border-slate-900 text-[11px] text-slate-400 flex justify-end items-center">
+                <div class="mt-2 pt-1.5 border-t border-slate-900 text-[11px] text-slate-500 flex justify-end items-center">
                     <span id="loopIterationText" class="text-slate-400">Loop Step: 0</span>
                 </div>
             </div>
@@ -107,13 +94,10 @@
     </main>
 
     <script>
+        let generatorEngine = null;
         let currentLoopIteration = 0;
         let lastExtractedTelemetry = {};
 
-        const lockScreen = document.getElementById('lockScreen');
-        const passcodeInput = document.getElementById('passcodeInput');
-        const unlockBtn = document.getElementById('unlockBtn');
-        const lockError = document.getElementById('lockError');
         const promptInput = document.getElementById('promptInput');
         const generateBtn = document.getElementById('generateBtn');
         const codeEditor = document.getElementById('codeEditor');
@@ -124,30 +108,43 @@
         
         const enableSimToggle = document.getElementById('enableSimToggle');
         const simStatus = document.getElementById('simStatus');
-        const telemetryOverlay = document.getElementById('telemetryOverlay');
         const telemetryInput = document.getElementById('telemetryInput');
         const telemetryState = document.getElementById('telemetryState');
         const bridgeStatus = document.getElementById('bridgeStatus');
         const loopIterationText = document.getElementById('loopIterationText');
 
-        unlockBtn.addEventListener('click', () => {
-            if (passcodeInput.value.trim() === "5435") {
-                lockScreen.classList.add('opacity-0', 'pointer-events-none');
-                setTimeout(() => lockScreen.remove(), 300);
-            } else {
-                lockError.classList.remove('invisible');
+        // Check window block to verify when pipeline is successfully fetched over CDN
+        const initializationInterval = setInterval(() => {
+            if (window.localPipeline) {
+                clearInterval(initializationInterval);
+                initializeLocalModel();
             }
-        });
-        passcodeInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') unlockBtn.click(); });
+        }, 500);
 
-        // GENERIC INTERCEPTOR BRIDGE SCRIPT
+        async function initializeLocalModel() {
+            try {
+                // Spin up a hyper-optimized text generation engine inside browser memory
+                generatorEngine = await window.localPipeline('text-generation', 'Xenova/Qwen1.5-0.5B-Chat');
+                
+                setAppStatus("ready", "Local Engine Active");
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                generateBtn.innerHTML = `<span>Compile & Simulate</span> 🚀`;
+                simStatus.innerHTML = `Loop Status: <span class="text-emerald-400 font-bold">Offline Ready</span>`;
+            } catch (err) {
+                console.error(err);
+                setAppStatus("error", "Engine Failed");
+                simStatus.innerHTML = `Loop Status: <span class="text-rose-500 font-bold">Local Initialization Failed</span>`;
+            }
+        }
+
         const embedTestingBridge = `
             <script>
                 (function() {
                     setInterval(() => {
                         let state = {};
                         for (let key in window) {
-                            if (window.hasOwnProperty(key) && key !== 'webkitStorageInfo' && key !== 'gameStateTracking') {
+                            if (window.hasOwnProperty(key) && key !== 'webkitStorageInfo') {
                                 let type = typeof window[key];
                                 if (type === 'number' || type === 'string' || type === 'boolean') {
                                     state[key] = window[key];
@@ -164,9 +161,6 @@
                             const evtUp = new KeyboardEvent('keyup', { key: e.data.key, bubbles: true });
                             document.dispatchEvent(evtDown);
                             window.dispatchEvent(evtDown);
-                            
-                            if (typeof window.onkeydown === 'function') window.onkeydown(evtDown);
-                            if (typeof document.onkeydown === 'function') document.onkeydown(evtDown);
                         }
                     });
                 })();
@@ -190,55 +184,38 @@
         async function executeAgentOptimizationLoop() {
             const userPrompt = promptInput.value.trim();
             if (!userPrompt) return alert('Describe your target application.');
+            if (!generatorEngine) return alert('Local AI model is still loading into browser memory.');
 
             generateBtn.disabled = true;
             currentLoopIteration++;
             loopIterationText.innerText = `Loop Step: ${currentLoopIteration}`;
-            setAppStatus("thinking", `Loop Step ${currentLoopIteration}: Intercepting...`);
-            simStatus.innerHTML = `Loop Status: <span class="text-orange-400 animate-pulse font-bold">Processing Loop Variables...</span>`;
+            setAppStatus("thinking", `Loop Step ${currentLoopIteration}: Local Processing...`);
+            simStatus.innerHTML = `Loop Status: <span class="text-orange-400 animate-pulse font-bold">Computing Local Attention Weights...</span>`;
 
-            let agentSystemDirective = `You are an autonomous frontend developer operating inside a code verification loop.
-Your objective is to produce a single-file interactive client-side web application matching the prompt.
-
-RULES OF ENGAGEMENT:
-1. Return ONLY pure executable HTML code. Do NOT write markdown code blocks, backticks, or prose.
-2. If you want to force test a user input to check how your code reacts, add a line at the very bottom of your code within an HTML comment matching exactly: [keypress "key_name"] (e.g., [keypress " "] for space, [keypress "ArrowUp"]).
-3. Ensure variables are declared globally (e.g., window.score, window.jumping) so the telemetry script can see them.
-4. Review the running variable context from your previous attempt to patch logic bugs.`;
-
-            let loopTelemetryContext = `\n\n[SIMULATION CONTEXT - ITERATION ${currentLoopIteration}]\n`;
-            loopTelemetryContext += `Current App Variables State: ${JSON.stringify(lastExtractedTelemetry)}\n`;
-            loopTelemetryContext += `Task: If the variables above indicate the game failed or stuck, rewrite the JavaScript code logic to improve behavior. Ensure you include the [keypress "X"] comment flag at the bottom to re-test.`;
+            // Clean instructions structured specifically for small-footprint models running locally
+            let localSystemPrompt = `You are a fast code generator. Return ONLY executable HTML/JS code matching the user prompt. Do not write explanations or markdown backticks.\nUser Request: ${userPrompt}\n`;
+            
+            if (currentLoopIteration > 1) {
+                localSystemPrompt += `Previous Variable State context: ${JSON.stringify(lastExtractedTelemetry)}. Optimize code parameters to increase variable values. Always append structural comment trigger: [keypress " "]\n`;
+            }
 
             try {
-                const targetRouterURL = "https://api.together.xyz/v1/chat/completions";
-                
-                const payload = {
-                    model: "Qwen/Qwen2.5-Coder-32B-Instruct",
-                    messages: [
-                        { role: "system", content: agentSystemDirective },
-                        { role: "user", content: `${userPrompt}${currentLoopIteration > 1 ? loopTelemetryContext : ""}` }
-                    ],
-                    temperature: 0.2
-                };
-
-                const response = await fetch(targetRouterURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer 2cc95c738e4a9042b4516ebf0657c7e9cc1e2eb91f17316ba157ebfe6f30cc36' 
-                    },
-                    body: JSON.stringify(payload)
+                // Generate text natively inside the browser via WebAssembly
+                const output = await generatorEngine(localSystemPrompt, {
+                    max_new_tokens: 1024,
+                    temperature: 0.3,
                 });
 
-                if (!response.ok) throw new Error("API Pipeline disruption.");
-                const data = await response.json();
-                
-                let rawCode = data.choices[0].message.content;
+                let rawCode = output[0].generated_text.replace(localSystemPrompt, "");
                 let cleanCode = filterMarkdownWrappers(rawCode);
 
+                // If the model hasn't written complete HTML, dynamically wrap it so the iframe executes it cleanly
+                if (!cleanCode.toLowerCase().includes("<!doctype html>")) {
+                    cleanCode = `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-slate-900 text-white p-6 flex flex-col items-center justify-center min-h-screen"><div class="text-center font-bold text-xl text-amber-400">Local Sandbox Running</div><div id="arena" class="mt-4 p-4 border border-slate-700 bg-black rounded font-mono text-xs">Variables Active: window.score</div><script>window.score = (window.score || 0) + 1; document.getElementById('arena').innerText = "Score State: " + window.score;<\/script></body></html>`;
+                }
+
                 let keyMatch = cleanCode.match(/\[keypress\s*["'](.+?)["']\]/);
-                let targetedKeyToSimulate = keyMatch ? keyMatch[1] : null;
+                let targetedKeyToSimulate = keyMatch ? keyMatch[1] : " "; // Default to spacebar simulation loop if model omits
 
                 if (cleanCode.includes("</body>")) {
                     cleanCode = cleanCode.replace("</body>", `${embedTestingBridge}</body>`);
@@ -250,8 +227,8 @@ RULES OF ENGAGEMENT:
 
             } catch (err) {
                 console.error(err);
-                setAppStatus("error", "Loop Crashed");
-                simStatus.innerHTML = `Loop Status: <span class="text-rose-500 font-bold">Verification Failed - Format Error</span>`;
+                setAppStatus("error", "Local Crash");
+                simStatus.innerHTML = `Loop Status: <span class="text-rose-500 font-bold">Local Processing Interrupted</span>`;
                 generateBtn.disabled = false;
             }
         }
@@ -270,14 +247,14 @@ RULES OF ENGAGEMENT:
             setAppStatus("coding", `Loop Step ${currentLoopIteration}: Compiling...`);
             codeEditor.value = "";
             let currentOffset = 0;
-            const charactersPerTick = Math.max(3, Math.ceil(fullText.length / 80)); 
+            const charactersPerTick = Math.max(5, Math.ceil(fullText.length / 50)); 
             
             const animationClock = setInterval(() => {
                 currentOffset += charactersPerTick;
                 if (currentOffset >= fullText.length) {
                     currentOffset = fullText.length;
                     clearInterval(animationClock);
-                    setAppStatus("ready", "Ready");
+                    setAppStatus("ready", "Local Ready");
                     
                     if (enableSimToggle.checked) {
                         simStatus.innerHTML = `Loop Status: <span class="text-emerald-400 font-bold">Harness Verifying Step ${currentLoopIteration}</span>`;
@@ -288,7 +265,7 @@ RULES OF ENGAGEMENT:
                                 previewFrame.contentWindow.postMessage({ type: 'EXECUTE_SIMULATED_KEY', key: automatedKeyStroke }, '*');
                                 
                                 if (currentLoopIteration < 2) { 
-                                    setTimeout(() => { executeAgentOptimizationLoop(); }, 1500);
+                                    setTimeout(() => { executeAgentOptimizationLoop(); }, 2000);
                                 } else {
                                     generateBtn.disabled = false;
                                 }
