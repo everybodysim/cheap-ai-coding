@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Live Workspace (Stable Gemini Engine)</title>
+    <title>⚡ Live Workspace (Production Engine)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
@@ -128,8 +128,8 @@
             try {
                 const systemInstructions = "You are an elite expert frontend developer. Create a single-file interactive application (HTML, CSS, and JS combined seamlessly) matching the user's prompt. You may use modern CDNs like Tailwind CSS (https://cdn.tailwindcss.com) freely. Return ONLY raw executable code starting with <!DOCTYPE html> and closing with </html>. Absolutely NO markdown block formatting wrapping code (do not use ```html), no backticks, and no conversation prose.";
 
-                // FIXED: Route changed to stable production API endpoint v1
-                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${decryptedKey.trim()}`;
+                // FIXED: Changed endpoint layout explicitly to point to the active gemini-2.0-flash production model
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${decryptedKey.trim()}`;
 
                 const response = await fetch(url, {
                     method: 'POST',
