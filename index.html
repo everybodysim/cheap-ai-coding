@@ -195,14 +195,15 @@ To force an automated input test check, put this tag at the very bottom of the c
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${apiKey}`
                     },
-                    body: JSON.stringify({
-                        model: "llama3-70b-8192", // High-tier hardware accelerated model weights
-                        messages: [
-                            { role: "system", content: agentSystemDirective },
-                            { role: "user", content: `${userPrompt}${currentLoopIteration > 1 ? loopTelemetryContext : ""}` }
-                        ],
-                        temperature: 0.2
-                    })
+                    // Locate the exact execution block in your script and replace the body config with this:
+body: JSON.stringify({
+    model: "llama-3.1-8b-instant", // Updated to the verified active production endpoint
+    messages: [
+        { role: "system", content: agentSystemDirective },
+        { role: "user", content: `${userPrompt}${currentLoopIteration > 1 ? loopTelemetryContext : ""}` }
+    ],
+    temperature: 0.2
+})
                 });
 
                 if (!chatResponse.ok) {
