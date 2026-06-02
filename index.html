@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Live-AI Sandbox Matrix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>⚡ Groq-Powered Canvas Engine</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -14,35 +14,59 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans overflow-hidden">
 
-    <header class="bg-slate-900 border-b border-slate-800 px-4 py-2 flex items-center justify-between shrink-0">
+    <header class="bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-2">
-            <span class="text-xl">🚀</span>
-            <h1 class="text-xs font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                LiveCode Canvas v9 (Sandbox Embedded AI Engine)
+            <span class="text-xl">⚡</span>
+            <h1 class="text-sm font-bold tracking-tight bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
+                LiveCode Canvas v10 (Groq Native Hardware Matrix)
             </h1>
         </div>
-        <div class="text-[11px] font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">
-            AI Tunnel Status: <span id="tunnelStatus" class="text-emerald-400 font-bold">Online</span>
+        
+        <div class="flex items-center gap-2 bg-slate-950/50 border border-slate-800 rounded px-2.5 py-1 text-xs text-slate-400">
+            <span id="statusIndicator" class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+            <span id="statusText" class="font-mono text-[11px]">Groq Connection Available</span>
         </div>
     </header>
 
     <main class="flex-1 flex overflow-hidden">
         
         <section class="w-80 border-r border-slate-800 bg-slate-900/40 flex flex-col shrink-0 p-4 gap-4 overflow-y-auto">
+            
             <div>
-                <h2 class="text-xs font-mono uppercase tracking-wider text-slate-400 font-bold mb-2">Sandbox Generator</h2>
-                <div class="bg-slate-950 border border-slate-800 rounded-lg p-2 flex flex-col gap-2">
-                    <textarea id="promptInput" rows="4" class="w-full bg-transparent text-slate-200 placeholder-slate-600 focus:outline-none text-xs resize-none" placeholder="Build an app that leverages the live AI search tool inside its execution container..."></textarea>
-                    <button id="generateBtn" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 font-bold text-xs py-2 rounded shadow-md transition transform active:scale-95">
-                        Inject Into Sandbox
+                <label class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1">1. Enter Groq API Key</label>
+                <input id="apiKeyInput" type="password" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-amber-400 focus:outline-none focus:border-orange-500 font-mono" placeholder="gsk_..." autocomplete="off"/>
+                <p class="text-[10px] text-slate-500 mt-1">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</p>
+            </div>
+
+            <div>
+                <label class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1">2. AI Agent Intent</label>
+                <div class="flex flex-col gap-2 bg-slate-950 border border-slate-800 rounded-lg p-2 focus-within:border-amber-500 transition">
+                    <textarea id="promptInput" rows="3" class="w-full bg-transparent text-slate-200 placeholder-slate-600 focus:outline-none text-xs resize-none" placeholder="Describe game parameters..."></textarea>
+                    <button id="generateBtn" class="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-slate-950 font-bold text-xs py-2 rounded shadow-md transition transform active:scale-95 flex items-center justify-center gap-1">
+                        <span>Compile & Simulate</span> 🚀
                     </button>
                 </div>
             </div>
 
-            <div class="flex-1 border-t border-slate-800/80 pt-4 flex flex-col min-h-0">
-                <h2 class="text-xs font-mono uppercase font-bold text-cyan-400 mb-2">📡 Sandbox AI Traffic Log</h2>
-                <div id="apiLog" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-[10px] text-slate-400 overflow-y-auto space-y-2">
-                    <div class="text-slate-600">// Awaiting sandbox API requests...</div>
+            <div class="flex items-center gap-2 bg-slate-950/40 border border-slate-800 rounded-lg p-2 text-[11px]">
+                <input type="checkbox" id="enableSimToggle" checked class="accent-orange-500 rounded h-3.5 w-3.5">
+                <label for="enableSimToggle" class="text-slate-400 cursor-pointer select-none">Enable Input Simulation Loop</label>
+            </div>
+
+            <div class="border-t border-slate-800/80 pt-4 font-mono text-xs">
+                <h2 class="text-xs uppercase font-bold text-orange-400 mb-2 flex items-center justify-between">
+                    <span>📡 Automation Harness</span>
+                    <span id="loopIterationText" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800">Step: 0</span>
+                </h2>
+                <div class="space-y-2 bg-slate-950/80 border border-slate-800 p-2.5 rounded-lg text-[11px]">
+                    <div>Loop Status: <span id="simStatus" class="text-slate-500">Standby</span></div>
+                    <div>Bridge Integrity: <span id="bridgeStatus" class="text-slate-500 font-bold">Offline</span></div>
+                    <div class="border-t border-slate-900 my-1.5"></div>
+                    <div>Forced Input Event: <span id="telemetryInput" class="text-amber-400 font-bold">None</span></div>
+                    <div class="mt-1">
+                        <div class="text-slate-500 mb-0.5">Scraped Global App Variables:</div>
+                        <pre id="telemetryState" class="bg-black/40 p-1.5 rounded text-emerald-400 overflow-x-auto text-[10px] max-h-24">{}</pre>
+                    </div>
                 </div>
             </div>
         </section>
@@ -58,15 +82,15 @@
                 </div>
             </div>
 
-            <div class="h-48 bg-slate-950 border-t border-slate-800 flex flex-col shrink-0 relative min-h-0">
+            <div class="h-56 bg-slate-950 border-t border-slate-800 flex flex-col shrink-0 relative min-h-0">
                 <div class="bg-slate-900/80 px-4 py-1.5 flex items-center justify-between border-b border-slate-800 shrink-0 select-none">
-                    <span class="text-[10px] font-mono tracking-wider text-slate-400 uppercase">Source Compilation Buffer</span>
+                    <span class="text-[10px] font-mono tracking-wider text-slate-400 uppercase">Local Source Compilation Buffer</span>
                     <button id="copyBtn" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded transition border border-slate-700 active:scale-95">
                         Copy Source
                     </button>
                 </div>
                 <div class="flex-1 relative overflow-hidden">
-                    <textarea id="codeEditor" spellcheck="false" class="w-full h-full bg-slate-950 text-cyan-400 font-mono text-xs p-3.5 focus:outline-none resize-none leading-relaxed"></textarea>
+                    <textarea id="codeEditor" spellcheck="false" class="w-full h-full bg-slate-950 text-amber-400 font-mono text-xs p-3.5 focus:outline-none resize-none leading-relaxed"></textarea>
                 </div>
             </div>
 
@@ -74,108 +98,188 @@
     </main>
 
     <script>
+        let currentLoopIteration = 0;
+        let lastExtractedTelemetry = {};
+
         const promptInput = document.getElementById('promptInput');
+        const apiKeyInput = document.getElementById('apiKeyInput');
         const generateBtn = document.getElementById('generateBtn');
         const codeEditor = document.getElementById('codeEditor');
         const previewFrame = document.getElementById('previewFrame');
-        const apiLog = document.getElementById('apiLog');
+        const statusText = document.getElementById('statusText');
+        const statusIndicator = document.getElementById('statusIndicator');
         const copyBtn = document.getElementById('copyBtn');
-
-        // PRE-COOKED SAMPLE APPLICATION THAT DEMONSTRATES DYNAMIC AI SEARCHING INSIDE THE SANDBOX
-        const starterAppTemplate = `<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://cdn.tailwindcss.com"><\/script>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-6">
-    <div class="max-w-md w-full bg-slate-800 border border-slate-700 p-6 rounded-xl shadow-2xl">
-        <h1 class="text-xl font-bold text-cyan-400 mb-1">Sandbox Live AI Search</h1>
-        <p class="text-xs text-slate-400 mb-4">This application calls a live-searching AI entirely from inside the sandbox viewport.</p>
         
-        <div class="space-y-3">
-            <input id="searchPrompt" type="text" value="What happened in the news today?" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-xs focus:outline-none focus:border-cyan-500" />
-            <button id="askAI" class="w-full bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold text-xs py-2 rounded transition active:scale-95">
-                Query AI + Live Web Search
-            </button>
-        </div>
+        const enableSimToggle = document.getElementById('enableSimToggle');
+        const simStatus = document.getElementById('simStatus');
+        const telemetryInput = document.getElementById('telemetryInput');
+        const telemetryState = document.getElementById('telemetryState');
+        const bridgeStatus = document.getElementById('bridgeStatus');
+        const loopIterationText = document.getElementById('loopIterationText');
 
-        <div class="mt-4 pt-4 border-t border-slate-700">
-            <div class="text-xs font-mono text-slate-400 mb-1">Response:</div>
-            <div id="outputBox" class="bg-slate-950 p-3 rounded text-xs font-mono text-emerald-400 min-h-[80px] max-h-[180px] overflow-y-auto whitespace-pre-wrap">Awaiting your prompt...</div>
-        </div>
-    </div>
-
-    <script>
-        // Communications function running entirely inside the sandbox container
-        function callLiveAISearch(queryText) {
-            return new Promise((resolve) => {
-                const requestId = 'req_' + Date.now();
-                window.parent.postMessage({ type: 'SANDBOX_AI_REQUEST', query: queryText, id: requestId }, '*');
-                
-                function handler(e) {
-                    if (e.data && e.data.type === 'SANDBOX_AI_RESPONSE' && e.data.id === requestId) {
-                        window.removeEventListener('message', handler);
-                        resolve(e.data.result);
-                    }
-                }
-                window.addEventListener('message', handler);
-            });
+        // Restore saved API Key if present
+        if(localStorage.getItem('_groq_key')) {
+            apiKeyInput.value = localStorage.getItem('_groq_key');
         }
 
-        document.getElementById('askAI').addEventListener('click', async () => {
-            const out = document.getElementById('outputBox');
-            const prompt = document.getElementById('searchPrompt').value;
-            out.innerText = "Searching web and generating response...";
-            
-            const result = await callLiveAISearch(prompt);
-            out.innerText = result;
-        });
-    <\/script>
-</body>
-</html>`;
+        const embedTestingBridge = `
+            <script>
+                (function() {
+                    setInterval(() => {
+                        let state = {};
+                        for (let key in window) {
+                            if (window.hasOwnProperty(key) && key !== 'webkitStorageInfo') {
+                                let type = typeof window[key];
+                                if (type === 'number' || type === 'string' || type === 'boolean') {
+                                    state[key] = window[key];
+                                }
+                            }
+                        }
+                        window.parent.postMessage({ type: 'TELEMETRY_UPDATE', state: state }, '*');
+                    }, 200);
 
-        // Load starting preview layout
-        codeEditor.value = starterAppTemplate;
-        syncPreviewFrame(starterAppTemplate);
+                    window.addEventListener('message', (e) => {
+                        if (!e.data) return;
+                        if (e.data.type === 'EXECUTE_SIMULATED_KEY') {
+                            const evtDown = new KeyboardEvent('keydown', { key: e.data.key, bubbles: true });
+                            const evtUp = new KeyboardEvent('keyup', { key: e.data.key, bubbles: true });
+                            document.dispatchEvent(evtDown);
+                            window.dispatchEvent(evtDown);
+                            if (typeof window.onkeydown === 'function') window.onkeydown(evtDown);
+                        }
+                    });
+                })();
+            <\/script>
+        `;
 
-        // SECURE MESSAGE BRIDGE: Listens to sandbox app requests and tunnels them through open gateways
-        window.addEventListener('message', async (e) => {
-            if (e.data && e.data.type === 'SANDBOX_AI_REQUEST') {
-                logMessage(`[Request] "${e.data.query}"`);
-                
-                try {
-                    // Pull down an alternate open-weights pipeline endpoint via raw text queries
-                    const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://api.duckduckgo.com/?q=" + encodeURIComponent(e.data.query) + "&format=json");
-                    const res = await fetch(proxyUrl);
-                    const data = await res.json();
-                    const parsedData = JSON.parse(data.contents);
-                    
-                    let summaryText = parsedData.AbstractText || "";
-                    if (!summaryText && parsedData.RelatedTopics && parsedData.RelatedTopics.length > 0) {
-                        summaryText = parsedData.RelatedTopics[0].Text;
-                    }
-                    if (!summaryText) {
-                        summaryText = `Search completed. No direct summary available for "${e.data.query}". Try a broader world topic or entity description.`;
-                    }
-
-                    logMessage(`[Success] Dispatched verification map.`);
-                    previewFrame.contentWindow.postMessage({ type: 'SANDBOX_AI_RESPONSE', id: e.data.id, result: summaryText }, '*');
-                } catch (err) {
-                    logMessage(`[Error] Tunnel failure.`);
-                    previewFrame.contentWindow.postMessage({ type: 'SANDBOX_AI_RESPONSE', id: e.data.id, result: "Network error fetching live AI data." }, '*');
-                }
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'TELEMETRY_UPDATE') {
+                bridgeStatus.innerText = "Connected";
+                bridgeStatus.className = "text-emerald-400 font-bold font-mono";
+                lastExtractedTelemetry = e.data.state;
+                telemetryState.innerText = JSON.stringify(e.data.state, null, 2);
             }
         });
 
         generateBtn.addEventListener('click', () => {
-            const content = promptInput.value.trim();
-            if(!content) return alert("Describe how the custom layout should behave.");
+            const key = apiKeyInput.value.trim();
+            if(!key) return alert("Please enter your Groq API Key first.");
+            localStorage.setItem('_groq_key', key);
             
-            // Generate variations directly inside code editor box via template construction
-            let modifiedCode = starterAppTemplate.replace('What happened in the news today?', content);
-            codeEditor.value = modifiedCode;
-            syncPreviewFrame(modifiedCode);
+            currentLoopIteration = 0;
+            executeAgentOptimizationLoop();
         });
+
+        async function executeAgentOptimizationLoop() {
+            const userPrompt = promptInput.value.trim();
+            const apiKey = apiKeyInput.value.trim();
+            if (!userPrompt) return alert('Describe your target application.');
+
+            generateBtn.disabled = true;
+            currentLoopIteration++;
+            loopIterationText.innerText = `Step: ${currentLoopIteration}`;
+            setAppStatus("thinking", "Routing via Groq LPU...");
+            simStatus.innerHTML = `<span class="text-orange-400 animate-pulse font-bold">Querying Llama-3...</span>`;
+
+            let agentSystemDirective = `You are an elite web application creator. Output ONLY working, functional, single-file HTML/JS web application code containing interactive components or animations. Absolutely NO markdown, NO code block ticks (\`\`\`), and NO conversational text. Include script tags loading Tailwind CSS or any standard library if required.
+Declare changing variables globally on the window object (e.g. window.score = 0) so the telemetry engine can track them.
+To force an automated input test check, put this tag at the very bottom of the code: [keypress "key_name"] (e.g. [keypress " "]).`;
+
+            let loopTelemetryContext = `\n\n[RECURSIVE STATUS CONTEXT - STEP ${currentLoopIteration}]\nLive Extracted Window State variables: ${JSON.stringify(lastExtractedTelemetry)}. Modify the application logic to fix bugs or improve loops. Always preserve the [keypress "X"] flag at the bottom if inputs are required.`;
+
+            try {
+                // Connecting right to the open groq network pipeline endpoint
+                const chatResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "llama3-70b-8192", // High-tier hardware accelerated model weights
+                        messages: [
+                            { role: "system", content: agentSystemDirective },
+                            { role: "user", content: `${userPrompt}${currentLoopIteration > 1 ? loopTelemetryContext : ""}` }
+                        ],
+                        temperature: 0.2
+                    })
+                });
+
+                if (!chatResponse.ok) {
+                    const errorDetails = await chatResponse.text();
+                    throw new Error(`Groq API Error: ${errorDetails}`);
+                }
+                
+                const data = await chatResponse.json();
+                let completeResponseText = data.choices[0].message.content;
+
+                let cleanCode = filterMarkdownWrappers(completeResponseText);
+                let keyMatch = cleanCode.match(/\[keypress\s*["'](.+?)["']\]/);
+                let targetedKeyToSimulate = keyMatch ? keyMatch[1] : null;
+
+                if (cleanCode.includes("</body>")) {
+                    cleanCode = cleanCode.replace("</body>", `${embedTestingBridge}</body>`);
+                } else {
+                    cleanCode += embedTestingBridge;
+                }
+
+                runLiveStreamEngine(cleanCode, targetedKeyToSimulate);
+
+            } catch (err) {
+                console.error(err);
+                setAppStatus("error", "Groq Error");
+                simStatus.innerHTML = `<span class="text-rose-500 font-bold">Inference Disrupted</span>`;
+                generateBtn.disabled = false;
+            }
+        }
+
+        function filterMarkdownWrappers(text) {
+            let processed = text.trim();
+            processed = processed.replace(/^```html\s*/i, "");
+            processed = processed.replace(/^```\s*/i, "");
+            if (processed.endsWith("```")) processed = processed.slice(0, -3);
+            return processed.trim();
+        }
+
+        function runLiveStreamEngine(fullText, automatedKeyStroke) {
+            setAppStatus("coding", "Assembling Frame Output...");
+            codeEditor.value = "";
+            let currentOffset = 0;
+            const charactersPerTick = Math.max(5, Math.ceil(fullText.length / 60)); 
+            
+            const animationClock = setInterval(() => {
+                currentOffset += charactersPerTick;
+                if (currentOffset >= fullText.length) {
+                    currentOffset = fullText.length;
+                    clearInterval(animationClock);
+                    setAppStatus("ready", "System Standby");
+                    
+                    if (enableSimToggle.checked) {
+                        simStatus.innerHTML = `<span class="text-emerald-400 font-bold">Harness Verifying...</span>`;
+                        if (automatedKeyStroke) {
+                            setTimeout(() => {
+                                telemetryInput.innerText = `Key ["${automatedKeyStroke}"]`;
+                                previewFrame.contentWindow.postMessage({ type: 'EXECUTE_SIMULATED_KEY', key: automatedKeyStroke }, '*');
+                                
+                                if (currentLoopIteration < 2) { 
+                                    setTimeout(() => { executeAgentOptimizationLoop(); }, 2000);
+                                } else {
+                                    generateBtn.disabled = false;
+                                }
+                            }, 1000);
+                        } else {
+                            generateBtn.disabled = false;
+                        }
+                    } else {
+                        generateBtn.disabled = false;
+                    }
+                }
+                const slice = fullText.slice(0, currentOffset);
+                codeEditor.value = slice;
+                codeEditor.scrollTop = codeEditor.scrollHeight;
+                syncPreviewFrame(slice);
+            }, 5);
+        }
 
         function syncPreviewFrame(htmlMarkup) {
             const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
@@ -184,19 +288,21 @@
             doc.close();
         }
 
-        function logMessage(msg) {
-            const line = document.createElement('div');
-            line.innerText = msg;
-            apiLog.appendChild(line);
-            apiLog.scrollTop = apiLog.scrollHeight;
-        }
-
         codeEditor.addEventListener('input', () => syncPreviewFrame(codeEditor.value));
         copyBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(codeEditor.value);
             copyBtn.innerText = "Copied! ✓";
             setTimeout(() => copyBtn.innerText = "Copy Source", 1500);
         });
+
+        function setAppStatus(type, label) {
+            statusText.innerText = label;
+            statusIndicator.className = "h-1.5 w-1.5 rounded-full";
+            if (type === "ready") statusIndicator.classList.add("bg-emerald-500");
+            else if (type === "thinking") statusIndicator.classList.add("bg-amber-500", "animate-pulse");
+            else if (type === "coding") statusIndicator.classList.add("bg-orange-500", "animate-pulse");
+            else if (type === "error") statusIndicator.classList.add("bg-rose-500");
+        }
     </script>
 </body>
 </html>
